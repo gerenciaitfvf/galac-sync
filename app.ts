@@ -1,8 +1,14 @@
 
 import {sequelize} from './src/services/connection';
 import { sendCxPFromGalac } from './src/controller/CxPController';
+import { sendProveedorFromGalac } from './src/controller/ProveedorController';
+import { sendComprobanteFromGalac } from './src/controller/ComprobanteController';
+import { sendMovBankFromGalac } from './src/controller/MovimientoBancarioController';
 
-//console.log(process.argv);
+import dotenv from 'dotenv'; 
+dotenv.config();
+//console.log(process.env);
+
 
     sequelize.authenticate()
     .then(()=>{
@@ -11,9 +17,22 @@ import { sendCxPFromGalac } from './src/controller/CxPController';
         switch (process.argv[2]) {
 
             case "galac":
-                console.log("Start parent process sendCxPFromGalac") ;
-                sendCxPFromGalac();
-                console.log("Finish parent process sendCxPFromGalac") ;
+                
+                console.log("Start galac process") ;
+                //sendMovBankFromGalac()
+                sendCxPFromGalac()
+                .then((check:any)=>{
+                    return sendProveedorFromGalac();
+                })
+                .then((check:any)=>{
+                    return sendComprobanteFromGalac();
+                })
+                .then((check:any)=>{
+                    return sendMovBankFromGalac();
+                })
+                
+               // await sendCxPFromGalac();
+                console.log("Finish galac process") ;
                 break;
             default: 
                 console.log("no function found")

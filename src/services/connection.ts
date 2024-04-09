@@ -1,3 +1,8 @@
+import dotenv from 'dotenv'; 
+dotenv.config();
+
+console.log(process.env);
+
 const { Sequelize } = require('sequelize');
 
 // Option 1: Passing a connection URI

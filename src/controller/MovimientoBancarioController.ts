@@ -1,8 +1,9 @@
 import _ from "lodash";
-import CxP from "../services/CxP";
 import { Op } from "sequelize";
 import axios from "axios";
 import { getLastUpdateTable, touchLastUpdateTable } from "./MainSyncController";
+import MovimientoBancario from "../services/MovimientoBancario";
+
 
 const options = {
     method: "POST",
@@ -11,12 +12,12 @@ const options = {
     },
 };
 
-export const sendCxPFromGalac : any = (offset = 0) => {
-  console.log("Start sendCxPFromGalac iteration: " + offset);
+export const sendMovBankFromGalac : any = (offset = 0) => {
+  console.log("Start sendMovBankFromGalac iteration: " + offset);
   //let page = +(process.env.QUERY_COMMET_START ?? 0);
   let limit = +(process.env.QUERY_COMMET_LIMIT ?? 25);
   let totalitems = 0;
-  const tablename = "cxp";
+  const tablename = "movbancario";
   
   return getLastUpdateTable(tablename)
     .then((lastdate) => {
@@ -33,13 +34,13 @@ export const sendCxPFromGalac : any = (offset = 0) => {
         + ((tmpDate.getMonth() + 1) < 10 ? "0" : "") + (tmpDate.getMonth()+1) + "-"
         + (tmpDate.getDate() < 10 ? "0" : "") + tmpDate.getDate();
 
-        console.log("strLastDate: " + strLastDate);
+      //console.log("strLastDate: " + strLastDate);
 
-      return CxP.findAndCountAll({
+      return MovimientoBancario.findAndCountAll({
         where: {
-          ConsecutivoCompania: {
+          /*ConsecutivoCompania: {
             [Op.in]: [5, 10],
-          },
+          },*/
           FechaUltimaModificacion: {
                 [Op.gte]: strLastDate //"2022-12-01",
               },          
@@ -49,34 +50,37 @@ export const sendCxPFromGalac : any = (offset = 0) => {
       });
     })
     .then((resultSQL) => {
-      //console.log("Cxp: " + resultSQL.rows[0].ConsecutivoCxp);
+     // console.log("Proveedor: " + resultSQL);
       totalitems = resultSQL.count;
 
       return axios
         .create(options)
-        .post(`${process.env.GALAC_AWS_URL}/cxp`, resultSQL.rows);
+        .post(`${process.env.GALAC_AWS_URL}/movimientobancario`, resultSQL.rows);
     })
     .then((remoteupdated) => {
       if (totalitems > offset + limit) {
-        console.log("call sendXxPFromGalac offset: " + (offset + limit));
-        return sendCxPFromGalac(offset + limit);
+        console.log("call sendMovBankFromGalac offset: " + (offset + limit));
+        return sendMovBankFromGalac(offset + limit);
       }
       console.log(
-        "Finish sendCxPFromGalac iteraction " + offset + " of " + totalitems
+        "Finish sendMovBankFromGalac iteraction " + offset + " of " + totalitems
       );
 
       return touchLastUpdateTable(tablename);
 
       }).then((touchresponse)=>{
-        console.log(touchresponse);
-        
       return Promise.resolve({
-        status :touchresponse.staus,
+        status : touchresponse.status,
         statuscode : touchresponse.statuscode,
-        data: "Finish sendCxPFromGalac iteraction " + offset + " of " + totalitems
+        data : "Finish sendMovBankFromGalac iteraction " + offset + " of " + totalitems
       })
     })
     .catch((e) => {
-      console.log("error check", e);
+      
+      return Promise.resolve({
+        status : "error",
+        statuscode : "MB03",
+        data : e
+      })
     });
 };
