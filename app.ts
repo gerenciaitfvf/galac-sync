@@ -6,12 +6,15 @@ import { sendComprobanteFromGalac } from './src/controller/ComprobanteController
 import { sendMovBankFromGalac } from './src/controller/MovimientoBancarioController';
 
 import dotenv from 'dotenv'; 
+import { sendPagoFromGalac } from './src/controller/PagoController';
+import { sendCambioFromGalac } from './src/controller/CambioController';
+import { sendDocPagadoFromGalac } from './src/controller/DocumentoPagadoController';
 dotenv.config();
 //console.log(process.env);
 
 
     sequelize.authenticate()
-    .then(()=>{
+    .then(async ()=> {
         console.log('Connection has been established successfully.');
 
         switch (process.argv[2]) {
@@ -30,9 +33,23 @@ dotenv.config();
                 .then((check:any)=>{
                     return sendMovBankFromGalac();
                 })
+                .then((check:any)=>{
+                    return sendPagoFromGalac();
+                })
+                .then((check:any)=>{
+                    return sendCambioFromGalac();
+                })
                 
                // await sendCxPFromGalac();
                 console.log("Finish galac process") ;
+                break;
+            case "docpagado": 
+                await sendDocPagadoFromGalac();
+                console.log("Finis galac pago table process")
+                break;
+            case "cambio": 
+                await sendCambioFromGalac();
+                console.log("Finis galac cambio table process")
                 break;
             default: 
                 console.log("no function found")

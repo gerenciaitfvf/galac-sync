@@ -1,8 +1,9 @@
 import _ from "lodash";
-import CxP from "../services/CxP";
 import { Op } from "sequelize";
 import axios from "axios";
 import { getLastUpdateTable, touchLastUpdateTable } from "./MainSyncController";
+import Pago from "../services/Pago";
+import Cambio from "../services/Cambio";
 
 const options = {
     method: "POST",
@@ -11,12 +12,12 @@ const options = {
     },
 };
 
-export const sendCxPFromGalac : any = (offset = 0) => {
-  console.log("Start sendCxPFromGalac iteration: " + offset);
+export const sendCambioFromGalac : any = (offset = 0) => {
+  console.log("Start sendCambioFromGalac iteration: " + offset);
   //let page = +(process.env.QUERY_COMMET_START ?? 0);
   let limit = +(process.env.QUERY_COMMET_LIMIT ?? 25);
   let totalitems = 0;
-  const tablename = "cxp";
+  const tablename = "tasacambio";
   
   return getLastUpdateTable(tablename)
     .then((lastdate) => {
@@ -35,11 +36,8 @@ export const sendCxPFromGalac : any = (offset = 0) => {
 
         console.log("strLastDate: " + strLastDate);
 
-      return CxP.findAndCountAll({
+      return Cambio.findAndCountAll({
         where: {
-          ConsecutivoCompania: {
-            [Op.in]: [5, 10],
-          },
           FechaUltimaModificacion: {
                 [Op.gte]: strLastDate //"2022-12-01",
               },          
@@ -54,26 +52,26 @@ export const sendCxPFromGalac : any = (offset = 0) => {
 
       return axios
         .create(options)
-        .post(`${process.env.GALAC_AWS_URL}/cxp`, resultSQL.rows);
+        .post(`${process.env.GALAC_AWS_URL}/tasacambio`, resultSQL.rows);
     })
     .then((remoteupdated) => {
       if (totalitems > offset + limit) {
-        console.log("call sendXxPFromGalac offset: " + (offset + limit));
-        return sendCxPFromGalac(offset + limit);
+        console.log("call sendCambioFromGalac offset: " + (offset + limit));
+        return sendCambioFromGalac(offset + limit);
       }
       console.log(
-        "Finish sendCxPFromGalac iteraction " + offset + " of " + totalitems
+        "Finish sendCambioFromGalac iteraction " + offset + " of " + totalitems
       );
 
       return touchLastUpdateTable(tablename);
 
       }).then((touchresponse)=>{
-        console.log(touchresponse);
+        //console.log(touchresponse);
         
       return Promise.resolve({
         status :touchresponse.status,
         statuscode : touchresponse.statuscode,
-        data: "Finish sendCxPFromGalac iteraction " + offset + " of " + totalitems
+        data: "Finish sendCambioFromGalac iteraction " + offset + " of " + totalitems
       })
     })
     .catch((e) => {

@@ -25,7 +25,7 @@ export const sendComprobanteFromGalac : any = (offset = 0) => {
         return Promise.reject(lastdate);
       }
 
-      let tmpDate = new Date(lastdate.data);
+      let tmpDate = new Date(lastdate.data.lastdate);
       tmpDate.setDate(tmpDate.getDate() - 1);
 
       const strLastDate = 

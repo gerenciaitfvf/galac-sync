@@ -1,8 +1,8 @@
 import _ from "lodash";
-import CxP from "../services/CxP";
 import { Op } from "sequelize";
 import axios from "axios";
 import { getLastUpdateTable, touchLastUpdateTable } from "./MainSyncController";
+import Pago from "../services/Pago";
 
 const options = {
     method: "POST",
@@ -11,12 +11,12 @@ const options = {
     },
 };
 
-export const sendCxPFromGalac : any = (offset = 0) => {
-  console.log("Start sendCxPFromGalac iteration: " + offset);
+export const sendPagoFromGalac : any = (offset = 0) => {
+  console.log("Start sendPagoFromGalac iteration: " + offset);
   //let page = +(process.env.QUERY_COMMET_START ?? 0);
   let limit = +(process.env.QUERY_COMMET_LIMIT ?? 25);
   let totalitems = 0;
-  const tablename = "cxp";
+  const tablename = "pago";
   
   return getLastUpdateTable(tablename)
     .then((lastdate) => {
@@ -35,7 +35,7 @@ export const sendCxPFromGalac : any = (offset = 0) => {
 
         console.log("strLastDate: " + strLastDate);
 
-      return CxP.findAndCountAll({
+      return Pago.findAndCountAll({
         where: {
           ConsecutivoCompania: {
             [Op.in]: [5, 10],
@@ -54,15 +54,15 @@ export const sendCxPFromGalac : any = (offset = 0) => {
 
       return axios
         .create(options)
-        .post(`${process.env.GALAC_AWS_URL}/cxp`, resultSQL.rows);
+        .post(`${process.env.GALAC_AWS_URL}/pago`, resultSQL.rows);
     })
     .then((remoteupdated) => {
       if (totalitems > offset + limit) {
-        console.log("call sendXxPFromGalac offset: " + (offset + limit));
-        return sendCxPFromGalac(offset + limit);
+        console.log("call sendPagoFromGalac offset: " + (offset + limit));
+        return sendPagoFromGalac(offset + limit);
       }
       console.log(
-        "Finish sendCxPFromGalac iteraction " + offset + " of " + totalitems
+        "Finish sendPagoFromGalac iteraction " + offset + " of " + totalitems
       );
 
       return touchLastUpdateTable(tablename);
@@ -71,9 +71,9 @@ export const sendCxPFromGalac : any = (offset = 0) => {
         console.log(touchresponse);
         
       return Promise.resolve({
-        status :touchresponse.status,
+        status :touchresponse.staus,
         statuscode : touchresponse.statuscode,
-        data: "Finish sendCxPFromGalac iteraction " + offset + " of " + totalitems
+        data: "Finish sendPagoFromGalac iteraction " + offset + " of " + totalitems
       })
     })
     .catch((e) => {
