@@ -58,7 +58,7 @@ export const sendDocPagadoFromGalac : any = (offset = 0, lastidsyncupd = 0) => {
       //console.log(resultSQL.rows);
 
       resultSQL.rows.map( (doc:DocumentoPagado) =>{
-        if( !_.isUndefined(doc.fldTimeStamp) && idsyncupdate < doc.fldTimeStamp) {
+        if( !_.isUndefined(doc.fldTimeStamp) && (idsyncupdate - doc.fldTimeStamp) < 0) {
           idsyncupdate = doc.fldTimeStamp;
         }
       });

@@ -9,6 +9,8 @@ import dotenv from 'dotenv';
 import { sendPagoFromGalac } from './src/controller/PagoController';
 import { sendCambioFromGalac } from './src/controller/CambioController';
 import { sendDocPagadoFromGalac } from './src/controller/DocumentoPagadoController';
+import { sendCxCFromGalac } from './src/controller/CxCController';
+import { sendAnticipoCobradoFromGalac, sendAnticipoFromGalac, sendAnticipoPagadoFromGalac } from './src/controller/AnticipoController';
 dotenv.config();
 //console.log(process.env);
 
@@ -38,6 +40,16 @@ dotenv.config();
                 })
                 .then((check:any)=>{
                     return sendCambioFromGalac();
+                }).then((check:any)=>{
+                    return sendDocPagadoFromGalac();
+                }).then((check:any)=>{
+                    return sendCxCFromGalac();
+                }).then((check:any)=>{
+                    return sendAnticipoFromGalac();
+                }).then((check:any)=>{
+                    return sendAnticipoPagadoFromGalac();
+                }).then((check:any)=>{
+                    return sendAnticipoCobradoFromGalac();
                 })
                 
                // await sendCxPFromGalac();
@@ -50,6 +62,22 @@ dotenv.config();
             case "cambio": 
                 await sendCambioFromGalac();
                 console.log("Finis galac cambio table process")
+                break;
+            case "cxc": 
+                await sendCxCFromGalac();
+                console.log("Finis galac cxc table process")
+                break;
+            case "anticipo": 
+                await sendAnticipoFromGalac();
+                console.log("Finis galac anticipo table process")
+                break;
+            case "anticipopagado": 
+                await sendAnticipoPagadoFromGalac();
+                console.log("Finis galac anticipopagado table process")
+                break;
+            case "anticipocobrado": 
+                await sendAnticipoCobradoFromGalac();
+                console.log("Finis galac anticipocobrado table process")
                 break;
             default: 
                 console.log("no function found")
