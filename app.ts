@@ -11,6 +11,7 @@ import { sendCambioFromGalac } from './src/controller/CambioController';
 import { sendDocPagadoFromGalac } from './src/controller/DocumentoPagadoController';
 import { sendCxCFromGalac } from './src/controller/CxCController';
 import { sendAnticipoCobradoFromGalac, sendAnticipoFromGalac, sendAnticipoPagadoFromGalac } from './src/controller/AnticipoController';
+import { sendCobranzaFromGalac } from './src/controller/CobranzaController';
 dotenv.config();
 //console.log(process.env);
 
@@ -50,6 +51,8 @@ dotenv.config();
                     return sendAnticipoPagadoFromGalac();
                 }).then((check:any)=>{
                     return sendAnticipoCobradoFromGalac();
+                }).then((check:any)=>{
+                    return sendCobranzaFromGalac();
                 })
                 
                // await sendCxPFromGalac();
@@ -78,6 +81,10 @@ dotenv.config();
             case "anticipocobrado": 
                 await sendAnticipoCobradoFromGalac();
                 console.log("Finis galac anticipocobrado table process")
+                break;
+            case "cobranza": 
+                await sendCobranzaFromGalac();
+                console.log("Finis galac cobranza table process")
                 break;
             default: 
                 console.log("no function found")
